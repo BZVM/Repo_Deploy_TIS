@@ -76,9 +76,10 @@ const statusStyles: Record<string, string> = {
   Pendiente: "bg-muted text-muted-foreground",
   Vencido: "bg-danger-subtle text-destructive",
 };
-/*
+
 function formatRol(strRol: string) {
   switch (strRol) {
+    case "ROL_1":
     case "ADMINISTRADOR":
       return "Administrador";
 
@@ -170,8 +171,8 @@ export default function AdminPanelPage() {
 
   if (!objUsuario) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
-        <div className="text-[14px] text-neutral-500">
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-[14px] text-muted-foreground">
           Cargando panel...
         </div>
       </div>
@@ -211,22 +212,24 @@ export default function AdminPanelPage() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2.5 rounded-lg border border-sidebar-border px-2.5 py-2">
-          <div className="h-8 w-8 shrink-0 rounded-full bg-sidebar-accent" />
-          <div className="min-w-0">
-            <p className="truncate text-[13px] font-medium leading-[1.3] text-sidebar-foreground">
-              Joseph Humerez
-            </p>
-            <p className="font-caption truncate text-[11px] leading-[1.3] tracking-[0.01em] text-sidebar-foreground/60">
-              Administrador
-            </p>
+        <div className="rounded-lg border border-sidebar-border px-2.5 py-2">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 shrink-0 rounded-full bg-sidebar-accent" />
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-medium leading-[1.3] text-sidebar-foreground">
+                {objUsuario.nombre} {objUsuario.apellido}
+              </p>
+              <p className="font-caption truncate text-[11px] leading-[1.3] tracking-[0.01em] text-sidebar-foreground/60">
+                {formatRol(objUsuario.rol)}
+              </p>
+            </div>
           </div>
 
           {/* Cerrar sesión */}
           <button
             type="button"
             onClick={handleLogout}
-            className="flex h-9 w-full items-center justify-center rounded-lg border border-neutral-200 text-[13px] font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+            className="mt-2 flex h-9 w-full items-center justify-center rounded-lg border border-sidebar-border text-[13px] font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
           >
             Cerrar sesión
           </button>

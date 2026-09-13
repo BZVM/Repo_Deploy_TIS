@@ -16,17 +16,15 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Acentos e indicadores de estado — ver tabla de colores en CLAUDE.md */
-  --color-accent-secondary: #4f46e5;
-  --color-success: #059669;
-  --color-success-subtle: #d1fae5;
-  --color-danger-subtle: #ffe4e6;
+  /* Acentos e indicadores de estado — valores en :root/.dark, ver CLAUDE.md */
+  --color-accent-secondary: var(--accent-secondary);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-danger-subtle: var(--danger-subtle);
 
   /* Jerarquía tipográfica — orden: Títulos, Subtítulos, Texto general, Texto secundario */
   --font-title: var(--font-title-raw);
-  --font-subtitle: var(--font-subtitle-raw);
   --font-body: var(--font-body-raw);
-  --font-caption: var(--font-caption-raw);
 
   /* Texto general es el estilo por defecto del sistema */
   --font-sans: var(--font-sans);
@@ -69,6 +67,27 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * font-subtitle es una @utility (no un token de @theme) porque la regla del
+ * proyecto exige mayúsculas SIEMPRE que se use Mono Bold/Italic, sin importar
+ * cómo esté escrito el texto en el código. Ver regla en CLAUDE.md.
+ */
+@utility font-subtitle {
+  font-family: var(--font-subtitle-raw);
+  text-transform: uppercase;
+}
+
+/*
+ * font-caption usa el corte "Thin" del tipo, cuyos trazos delgados son poco
+ * legibles en tamaños pequeños (11-12px). Se fuerza font-weight: 500 para que
+ * el navegador aplique negrita sintética sobre esos trazos y mejore la
+ * visibilidad, sin cambiar el archivo de fuente ni el tamaño. Ver CLAUDE.md.
+ */
+@utility font-caption {
+  font-family: var(--font-caption-raw);
+  font-weight: 500;
+}
+
 body {
   font-family: var(--font-sans);
 }
@@ -88,7 +107,7 @@ body {
   --secondary: #f4f4f5;
   --secondary-foreground: #09090b;
   --muted: #f4f4f5;
-  --muted-foreground: #71717a; /* zinc-500 — subtítulos, labels, headers de columna */
+  --muted-foreground: #52525b; /* zinc-600 — subtítulos, labels, headers de columna (ver nota de legibilidad en CLAUDE.md) */
   --accent: #f4f4f5;
   --accent-foreground: #09090b;
   --destructive: #e11d48; /* rose-600 — gastos, morosidad, alertas */
@@ -109,42 +128,55 @@ body {
   --sidebar-accent-foreground: #f4f4f5;
   --sidebar-border: #27272a;
   --sidebar-ring: #0d9488;
+
+  --accent-secondary: #4f46e5; /* indigo-600 */
+  --success: #059669; /* emerald-600 */
+  --success-subtle: #d1fae5; /* emerald-100 */
+  --danger-subtle: #ffe4e6; /* rose-100 */
 }
 /*
  ---break---
  */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  /* Paleta de marca en modo oscuro — Zinc/Teal/Rose invertido. Ver CLAUDE.md */
+  --background: #09090b; /* zinc-950 — canvas general (capa base) */
+  --foreground: #fafafa; /* zinc-50 — títulos, datos clave, cifras KPI */
+  --card: #18181b; /* zinc-900 — tarjetas/tablas, un escalón más claro que el canvas (elevación) */
+  --card-foreground: #fafafa;
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+  --primary: #0d9488; /* teal-600 — se mantiene, funciona en claro y oscuro */
+  --primary-foreground: #ffffff;
+  --secondary: #27272a; /* zinc-800 */
+  --secondary-foreground: #fafafa;
+  --muted: #27272a;
+  --muted-foreground: #d4d4d8; /* zinc-300 — contraste ~12:1 sobre el canvas oscuro */
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #f43f5e; /* rose-500, un tono más claro que en modo claro: rose-600 da solo ~4.2:1 sobre fondo oscuro */
+  --border: #27272a; /* zinc-800 — visible sobre canvas (950) y tarjetas (900) */
+  --input: #27272a;
+  --ring: #0d9488;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar: #09090b; /* zinc-950 — mismo plano que el canvas */
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #0d9488; /* teal-600 — píldora del menú activo */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #18181b; /* zinc-900 — hover, un escalón de elevación sobre el sidebar */
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #18181b;
+  --sidebar-ring: #0d9488;
+
+  --accent-secondary: #4f46e5; /* indigo-600 — se mantiene (uso en texto grande, KPI) */
+  --success: #059669; /* emerald-600 — se mantiene, ~5.3:1 sobre el canvas oscuro */
+  /* Los badges "sutiles" usan un tinte translúcido sobre el color saturado en vez del
+     pastel claro de modo claro, que se vería fuera de lugar sobre fondos oscuros. */
+  --success-subtle: rgb(5 150 105 / 18%);
+  --danger-subtle: rgb(244 63 94 / 18%);
 }
 /*
  ---break---
