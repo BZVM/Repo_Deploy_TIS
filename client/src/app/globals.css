@@ -27,8 +27,8 @@
   --font-body: var(--font-body-raw);
 
   /* Texto general es el estilo por defecto del sistema */
-  --font-sans: var(--font-sans);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-body-raw);
+  --font-heading: var(--font-body-raw);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -90,6 +90,27 @@
 
 body {
   font-family: var(--font-sans);
+}
+
+/*
+ * Animación decorativa para los "blobs" de gradiente del panel de marca
+ * (login). Es una clase CSS simple, no un @utility de Tailwind, porque no
+ * necesita variantes (hover:, lg:, etc.) — solo se aplica de forma fija.
+ */
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(4%, -6%) scale(1.1);
+  }
+  66% {
+    transform: translate(-3%, 3%) scale(0.95);
+  }
+}
+.animate-blob {
+  animation: blob 14s infinite ease-in-out;
 }
 /*
  ---break---
