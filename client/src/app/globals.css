@@ -91,6 +91,27 @@
 body {
   font-family: var(--font-sans);
 }
+
+/*
+ * Animación decorativa para los "blobs" de gradiente del panel de marca
+ * (login). Es una clase CSS simple, no un @utility de Tailwind, porque no
+ * necesita variantes (hover:, lg:, etc.) — solo se aplica de forma fija.
+ */
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(4%, -6%) scale(1.1);
+  }
+  66% {
+    transform: translate(-3%, 3%) scale(0.95);
+  }
+}
+.animate-blob {
+  animation: blob 14s infinite ease-in-out;
+}
 /*
  ---break---
  */

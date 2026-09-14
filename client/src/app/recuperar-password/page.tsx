@@ -1,7 +1,5 @@
 "use client";
 
-// Pantalla estática de referencia visual — no hay endpoint de recuperación
-// de contraseña en el backend todavía. El submit solo simula el envío.
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 

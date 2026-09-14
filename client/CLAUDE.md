@@ -73,6 +73,49 @@ detrás — ver comentario en cada archivo):
 
 **Aviso:** el backend (`schema.prisma`) todavía no modela múltiples condominios ni roles
 múltiples por usuario (`Usuario.rol` es un único enum) — `/seleccionar-perfil` es solo la
-referencia visual de cómo se vería esa pantalla cuando ese modelo de datos exista. Ninguna de
-estas 4 pantallas está conectada al flujo real de `/login`; se llega a ellas por navegación
-manual (enlaces) para revisión de diseño.
+referencia visual de cómo se vería esa pantalla cuando ese modelo de datos exista. De estas 4
+pantallas, solo `/recuperar-password` está enlazada desde el login real (link "¿Olvidaste tu
+contraseña?"). `/verificacion-2fa` y `/seleccionar-perfil` quedaron deshabilitadas del flujo real
+a propósito: aún no hay backend/API de 2FA, así que un login correcto va directo a `/admin`. Se
+llega a las 4 por navegación manual para revisión de diseño.
+
+## Control de acceso por rol (RBAC) — solo frontend
+
+Implementado en [src/lib/permissions.ts](src/lib/permissions.ts) (matriz de permisos) y
+[src/lib/session.ts](src/lib/session.ts) (lectura reactiva de la sesión). El guard central vive en
+[src/app/admin/layout.tsx](src/app/admin/layout.tsx): redirige a `/login` si no hay sesión, calcula
+la sección actual a partir de la URL y bloquea con una pantalla de "Acceso denegado"
+([src/components/AccesoDenegado.tsx](src/components/AccesoDenegado.tsx)) si el rol no tiene acceso
+a esa sección — cubre también el acceso por URL directa.
+
+El backend no tiene ningún modelo de permisos/roles (no existe `Permiso` ni `RolPermiso` en
+`schema.prisma`), así que la matriz de `permissions.ts` es hoy la única fuente de verdad. Está
+alineada con la única regla de autorización que sí existe en el backend
+(`server/src/middlewares/rbac.middleware.js`, módulo de usuarios): `GET /api/usuarios` permite
+ADMINISTRADOR y DIRECTORIO; `POST`/`PUT`/`PATCH` solo ADMINISTRADOR.
+
+| Sección | Ruta | Administrador | Directorio | Consulta |
+|---|---|---|---|---|
+| Panel principal | `/admin` | Ver | Ver | Ver |
+| Edificios | `/admin/edificios` | Ver, crear, editar, eliminar | Ver, crear, editar | Ver |
+| Residentes | `/admin/residentes` | Ver, crear, editar, eliminar | Ver, crear, editar | Ver |
+| Pagos | `/admin/pagos` | Ver, crear, editar, eliminar | Ver, crear, editar | Ver |
+| Mantenimiento | `/admin/mantenimiento` | Ver, crear, editar, eliminar | Ver, crear, editar | Ver |
+| Usuarios | `/admin/usuarios` | Ver, crear, editar, dar de baja | Ver | Sin acceso |
+| Configurar roles | `/admin/roles` | Ver, editar | Sin acceso | Sin acceso |
+
+Solo `/admin/usuarios` llama a una API real (`GET/POST/PUT/PATCH /api/usuarios`); el resto
+(edificios, residentes, pagos, mantenimiento) son pantallas de referencia con datos en memoria
+porque esos módulos del backend todavía son carpetas `.gitkeep` sin controlador. `/admin/roles`
+es de solo lectura por el mismo motivo: no hay dónde persistir cambios a la matriz.
+
+Reglas para cualquier botón de crear/editar/eliminar nuevo:
+
+- **Ocultar, no solo deshabilitar**, si `puedeEjecutar(rol, seccion, accion)` es `false`.
+- Antes de ejecutar la acción (aunque el botón esté oculto), volver a llamar a `validarAccion(...)`
+  y, si la rechaza, mostrar el mensaje exacto con `<AlertaPermiso>`:
+  *"Permiso insuficiente: Su perfil solo permite lectura de información."* — no ejecutar la
+  operación ni modificar el estado/datos.
+- No existe un mecanismo de "cambiar de rol en la misma sesión": los permisos se recalculan en
+  cada render a partir de lo que haya en `localStorage`, así que un cambio de rol real requiere
+  volver a iniciar sesión.
