@@ -1,6 +1,4 @@
-// Pantalla estática de referencia visual — el modelo de datos actual (schema.prisma)
-// solo soporta un rol por usuario y no tiene concepto de condominios/propiedades
-// múltiples. Esta vista anticipa cómo se vería esa selección cuando exista.
+
 import Link from "next/link";
 
 const arrPerfiles = [

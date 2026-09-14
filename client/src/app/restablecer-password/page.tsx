@@ -1,7 +1,6 @@
 "use client";
 
-// Pantalla estática de referencia visual — se llegaría aquí desde el enlace
-// enviado por correo (con un token en la URL). No hay endpoint real todavía.
+
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 
