@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
 import { api } from "@/lib/api";
 
@@ -82,7 +83,7 @@ export default function LoginPage() {
           setStrError("Tu usuario no tiene acceso al sistema.");
         } else if (intStatus === 500) {
           setStrError(
-            "Tu usuario no tiene acceso al sistema."
+            "Error del servidor. Puede ser un problema de conexión con la base de datos — avisa al equipo de backend."
           );
         } else {
           setStrError(
@@ -137,7 +138,7 @@ export default function LoginPage() {
                 value={strEmail}
                 onChange={(event) => setStrEmail(event.target.value)}
                 required
-                className="h-11 rounded-lg border border-input bg-background px-3.5 text-[14px] text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/15"
+                className="h-11 rounded-lg border border-input bg-background px-3.5 text-[14px] text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary focus:ring-4 focus:ring-primary/15"
               />
             </div>
 
@@ -151,12 +152,12 @@ export default function LoginPage() {
                   Contraseña
                 </label>
 
-                <a
-                  href="#"
+                <Link
+                  href="/recuperar-password"
                   className="font-caption text-[12px] leading-[1.3] tracking-[0.01em] text-primary hover:text-primary/80"
                 >
                   ¿Olvidaste tu contraseña?
-                </a>
+                </Link>
               </div>
 
               <input
@@ -166,7 +167,7 @@ export default function LoginPage() {
                 value={strPassword}
                 onChange={(event) => setStrPassword(event.target.value)}
                 required
-                className="h-11 rounded-lg border border-input bg-background px-3.5 text-[14px] text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/15"
+                className="h-11 rounded-lg border border-input bg-background px-3.5 text-[14px] text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary focus:ring-4 focus:ring-primary/15"
               />
             </div>
 
@@ -231,6 +232,27 @@ export default function LoginPage() {
               >
                 Ingresar como admin TEST
               </button>
+
+              <div className="mt-3 flex flex-wrap justify-center gap-x-3 gap-y-1">
+                <Link
+                  href="/recuperar-password"
+                  className="font-caption text-[11px] leading-[1.3] tracking-[0.01em] text-muted-foreground hover:text-foreground"
+                >
+                  Ver: recuperar contraseña
+                </Link>
+                <Link
+                  href="/verificacion-2fa"
+                  className="font-caption text-[11px] leading-[1.3] tracking-[0.01em] text-muted-foreground hover:text-foreground"
+                >
+                  Ver: verificación 2FA
+                </Link>
+                <Link
+                  href="/seleccionar-perfil"
+                  className="font-caption text-[11px] leading-[1.3] tracking-[0.01em] text-muted-foreground hover:text-foreground"
+                >
+                  Ver: selección de perfil
+                </Link>
+              </div>
             </div>
           )}
         </div>
