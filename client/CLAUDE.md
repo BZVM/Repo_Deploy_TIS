@@ -60,3 +60,19 @@ corte Thin de la tipografía combinado con Zinc 500 en 11-12px daba un contraste
 debajo del mínimo AA (4.5:1). Se usa Rose 500 en `.dark` para subir a ~5.4:1. Los badges
 "sutiles" (`*-subtle`) usan el color saturado en baja opacidad en vez del pastel claro, que se
 vería fuera de lugar sobre fondos oscuros.
+
+## Pantallas de acceso
+
+Además de `/login` y `/admin`, existen estas pantallas de referencia visual (sin backend real
+detrás — ver comentario en cada archivo):
+
+- `/recuperar-password` — solicitar enlace de recuperación (pantalla intermedia con estado "revisa tu correo")
+- `/restablecer-password` — pantalla a la que llegaría el enlace del correo, para definir nueva contraseña
+- `/verificacion-2fa` — verificación en dos pasos (6 dígitos, con auto-avance de foco)
+- `/seleccionar-perfil` — selector Multi-Tenant/Multi-Rol para cuentas con más de un perfil (ej. Administrador de un condominio + Copropietario de otro)
+
+**Aviso:** el backend (`schema.prisma`) todavía no modela múltiples condominios ni roles
+múltiples por usuario (`Usuario.rol` es un único enum) — `/seleccionar-perfil` es solo la
+referencia visual de cómo se vería esa pantalla cuando ese modelo de datos exista. Ninguna de
+estas 4 pantallas está conectada al flujo real de `/login`; se llega a ellas por navegación
+manual (enlaces) para revisión de diseño.
