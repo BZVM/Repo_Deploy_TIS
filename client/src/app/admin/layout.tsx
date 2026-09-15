@@ -75,7 +75,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
               <Link
                 key={seccion.id}
                 href={seccion.href}
-                className={`font-subtitle flex h-9 items-center rounded-lg px-3 text-[14px] font-medium leading-[1.3] tracking-[-0.005em] transition-all duration-200 ${
+                className={`font-subtitle flex h-9 items-center rounded-lg px-3 text-[14px] font-medium leading-[1.3] tracking-[-0.005em] transition-[background-color,color,box-shadow,transform] duration-200 ${
                   seccion.id === seccionActual
                     ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md shadow-sidebar-primary/25"
                     : "text-sidebar-foreground hover:translate-x-0.5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -114,7 +114,13 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
       {/* Contenido principal */}
       <div className="flex flex-1 flex-col">
         {/* Topbar */}
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-card/80 px-6 backdrop-blur-md">
+        {/*
+          Antes tenía backdrop-blur-md: con la cabecera "sticky" eso obliga
+          al navegador a recalcular el desenfoque del contenido de abajo en
+          cada frame de scroll (bug QA de lentitud al navegar/seleccionar).
+          bg-card/95 da un efecto casi idéntico sin ese costo.
+        */}
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-card/95 px-6">
           <h1 className="font-title text-[20px] font-bold leading-[1.2] tracking-[-0.015em] text-foreground">
             {SECCIONES_NAV.find((seccion) => seccion.id === seccionActual)?.label ?? "Panel principal"}
           </h1>
@@ -123,7 +129,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
             <input
               type="search"
               placeholder="Buscar..."
-              className="hidden h-9 w-56 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/15 sm:block"
+              className="hidden h-9 w-56 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/15 sm:block"
             />
 
             <button
