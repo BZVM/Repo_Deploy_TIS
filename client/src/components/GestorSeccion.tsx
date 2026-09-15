@@ -113,7 +113,7 @@ export function GestorSeccion({ rol, seccion, campos, registrosIniciales }: Gest
           <button
             type="button"
             onClick={() => setBolMostrarFormularioNuevo((bolValor) => !bolValor)}
-            className="flex h-10 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 active:scale-[0.98]"
+            className="flex h-10 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-[background-color,transform] hover:bg-primary/90 active:scale-[0.98]"
           >
             {bolMostrarFormularioNuevo ? "Cancelar" : "+ Nuevo registro"}
           </button>
@@ -121,6 +121,7 @@ export function GestorSeccion({ rol, seccion, campos, registrosIniciales }: Gest
           {bolMostrarFormularioNuevo && (
             <form
               onSubmit={crearRegistro}
+              autoComplete="off"
               className="animate-in fade-in slide-in-from-top-1 duration-300 mt-3 flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-4"
             >
               {campos.map((campo) => (
@@ -129,6 +130,7 @@ export function GestorSeccion({ rol, seccion, campos, registrosIniciales }: Gest
                   <input
                     name={campo.key}
                     placeholder={campo.placeholder}
+                    autoComplete="off"
                     required
                     className="h-9 w-44 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
                   />
@@ -172,6 +174,7 @@ export function GestorSeccion({ rol, seccion, campos, registrosIniciales }: Gest
                   <td colSpan={campos.length + (bolHayAcciones ? 1 : 0)} className="px-5 py-3">
                     <form
                       onSubmit={(event) => guardarEdicion(registro.id, event)}
+                      autoComplete="off"
                       className="flex flex-wrap items-end gap-3"
                     >
                       {campos.map((campo) => (
@@ -180,6 +183,7 @@ export function GestorSeccion({ rol, seccion, campos, registrosIniciales }: Gest
                           <input
                             name={campo.key}
                             defaultValue={registro[campo.key]}
+                            autoComplete="off"
                             required
                             className="h-9 w-44 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
                           />
