@@ -95,6 +95,19 @@ export default function UsuariosPage() {
 
     const objFormulario = new FormData(event.currentTarget);
 
+    const strPassword = String(objFormulario.get("password") ?? "");
+    const errores: string[] = [];
+    if (strPassword.length < 10) errores.push("mínimo 10 caracteres");
+    if (!/[A-Z]/.test(strPassword)) errores.push("al menos una mayúscula");
+    if (!/[a-z]/.test(strPassword)) errores.push("al menos una minúscula");
+    if (!/[0-9]/.test(strPassword)) errores.push("al menos un número");
+    if (!/[^A-Za-z0-9]/.test(strPassword)) errores.push("al menos un carácter especial");
+
+    if (errores.length > 0) {
+      setStrError(`La contraseña no cumple: ${errores.join(", ")}`);
+      return;
+    }
+
     try {
       const response = await api.post<{ usuario: UsuarioApi }>("/usuarios", {
         nombre: objFormulario.get("nombre"),
@@ -183,7 +196,7 @@ export default function UsuariosPage() {
           <button
             type="button"
             onClick={() => setBolMostrarFormularioNuevo((bolValor) => !bolValor)}
-            className="flex h-10 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 active:scale-[0.98]"
+            className="flex h-10 items-center justify-center gap-1.5 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-[background-color,transform] hover:bg-primary/90 active:scale-[0.98]"
           >
             {bolMostrarFormularioNuevo ? "Cancelar" : "+ Nuevo usuario"}
           </button>
@@ -191,23 +204,24 @@ export default function UsuariosPage() {
           {bolMostrarFormularioNuevo && (
             <form
               onSubmit={crearUsuario}
+              autoComplete="off"
               className="animate-in fade-in slide-in-from-top-1 duration-300 mt-3 flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-card p-4"
             >
               <div className="flex flex-col gap-1">
                 <label className="text-[12px] font-medium text-foreground">Nombre</label>
-                <input name="nombre" required className="h-9 w-40 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
+                <input name="nombre" autoComplete="off" required className="h-9 w-40 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[12px] font-medium text-foreground">Apellido</label>
-                <input name="apellido" required className="h-9 w-40 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
+                <input name="apellido" autoComplete="off" required className="h-9 w-40 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[12px] font-medium text-foreground">Correo</label>
-                <input name="email" type="email" required className="h-9 w-52 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
+                <input name="email" type="email" autoComplete="off" required className="h-9 w-52 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[12px] font-medium text-foreground">Contraseña</label>
-                <input name="password" type="password" required className="h-9 w-40 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
+                <input name="password" type="password" autoComplete="new-password" required className="h-9 w-40 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[12px] font-medium text-foreground">Rol</label>
@@ -255,18 +269,18 @@ export default function UsuariosPage() {
                 strIdEnEdicion === registro.id ? (
                   <tr key={registro.id} className="border-b border-border last:border-0">
                     <td colSpan={bolHayAcciones ? 5 : 4} className="px-5 py-3">
-                      <form onSubmit={(event) => guardarEdicion(registro.id, event)} className="flex flex-wrap items-end gap-3">
+                      <form onSubmit={(event) => guardarEdicion(registro.id, event)} autoComplete="off" className="flex flex-wrap items-end gap-3">
                         <div className="flex flex-col gap-1">
                           <label className="text-[12px] font-medium text-foreground">Nombre</label>
-                          <input name="nombre" defaultValue={registro.nombre} required className="h-9 w-40 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
+                          <input name="nombre" defaultValue={registro.nombre} autoComplete="off" required className="h-9 w-40 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
                         </div>
                         <div className="flex flex-col gap-1">
                           <label className="text-[12px] font-medium text-foreground">Apellido</label>
-                          <input name="apellido" defaultValue={registro.apellido} required className="h-9 w-40 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
+                          <input name="apellido" defaultValue={registro.apellido} autoComplete="off" required className="h-9 w-40 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
                         </div>
                         <div className="flex flex-col gap-1">
                           <label className="text-[12px] font-medium text-foreground">Correo</label>
-                          <input name="email" type="email" defaultValue={registro.email} required className="h-9 w-52 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
+                          <input name="email" type="email" defaultValue={registro.email} autoComplete="off" required className="h-9 w-52 rounded-lg border border-input bg-background px-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15" />
                         </div>
                         <div className="flex flex-col gap-1">
                           <label className="text-[12px] font-medium text-foreground">Rol</label>

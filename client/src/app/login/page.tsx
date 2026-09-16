@@ -88,14 +88,11 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Panel de marca — placeholder animado. Cuando lleguen el logo definitivo
-          y la imagen/ilustración de fondo, reemplazan el bloque "E" y los blobs
-          de gradiente sin tocar la estructura del layout. */}
       <div className="relative hidden w-1/2 shrink-0 overflow-hidden bg-linear-to-br from-primary/15 via-background to-accent-secondary/15 lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="animate-blob absolute -left-24 -top-24 h-96 w-96 rounded-full bg-primary/25 blur-3xl" />
-          <div className="animate-blob absolute -right-16 top-1/3 h-80 w-80 rounded-full bg-accent-secondary/20 blur-3xl [animation-delay:4s]" />
-          <div className="animate-blob absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-primary/15 blur-3xl [animation-delay:8s]" />
+          <div className="animate-blob absolute -left-24 -top-24 h-96 w-96 rounded-full bg-primary/25 blur-2xl" />
+          <div className="animate-blob absolute -right-16 top-1/3 h-80 w-80 rounded-full bg-accent-secondary/20 blur-2xl [animation-delay:4s]" />
+          <div className="animate-blob absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-primary/15 blur-2xl [animation-delay:8s]" />
         </div>
 
         <div className="relative z-10 flex items-center gap-2.5">
@@ -169,7 +166,7 @@ export default function LoginPage() {
                   <input
                     id="email"
                     type="email"
-                    placeholder="nombre@empresa.com"
+                    placeholder="Ingrese su correo electrónico"
                     value={strEmail}
                     onChange={(event) => setStrEmail(event.target.value)}
                     required
@@ -214,7 +211,7 @@ export default function LoginPage() {
                   <input
                     id="password"
                     type={bolShowPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="Ingrese su contraseña"
                     value={strPassword}
                     onChange={(event) => setStrPassword(event.target.value)}
                     required
@@ -270,7 +267,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={bolLoading}
-                className="mt-1 flex h-11 items-center justify-center gap-2 rounded-lg bg-primary text-[14px] font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-primary/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
+                className="mt-1 flex h-11 items-center justify-center gap-2 rounded-lg bg-primary text-[14px] font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-[background-color,box-shadow,transform] hover:bg-primary/90 hover:shadow-primary/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
               >
                 {bolLoading && (
                   <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 animate-spin">

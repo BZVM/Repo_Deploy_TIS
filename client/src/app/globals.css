@@ -111,6 +111,27 @@ body {
 }
 .animate-blob {
   animation: blob 14s infinite ease-in-out;
+  /* Promueve el blob a su propia capa de composición: el navegador solo
+     mueve la capa ya pintada en vez de repintar el blur en cada frame. */
+  will-change: transform;
+}
+
+/*
+ * Bug QA — "lentitud al ingresar y seleccionar opciones": quien tiene
+ * activado "reducir movimiento" en su SO también suele ser quien menos CPU/
+ * GPU libre tiene para animaciones decorativas. Esto corta todas las
+ * animaciones y transiciones del proyecto casi a cero para ese caso, sin
+ * tener que tocar cada componente uno por uno.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 /*
  ---break---
