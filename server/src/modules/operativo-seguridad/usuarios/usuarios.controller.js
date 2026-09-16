@@ -1,4 +1,5 @@
 const usuariosService = require("./usuarios.service");
+const { validarPassword } = require("../../../utils/validarPassword");
 
 const ROLES_VALIDOS = ["ADMINISTRADOR", "DIRECTORIO", "CONSULTA"];
 
@@ -25,6 +26,10 @@ async function crear(req, res, next) {
     const { nombre, apellido, email, password, rol } = req.body;
     if (!nombre || !apellido || !email || !password || !rol) {
       return res.status(400).json({ error: "nombre, apellido, email, password y rol son requeridos" });
+    }
+    const erroresPassword = validarPassword(password);
+    if (erroresPassword.length > 0) {
+      return res.status(400).json({ error: `La contraseña no cumple: ${erroresPassword.join(", ")}` });
     }
     if (!ROLES_VALIDOS.includes(rol)) {
       return res.status(400).json({ error: `rol debe ser uno de: ${ROLES_VALIDOS.join(", ")}` });

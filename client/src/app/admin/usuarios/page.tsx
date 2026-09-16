@@ -95,6 +95,19 @@ export default function UsuariosPage() {
 
     const objFormulario = new FormData(event.currentTarget);
 
+    const strPassword = String(objFormulario.get("password") ?? "");
+    const errores: string[] = [];
+    if (strPassword.length < 10) errores.push("mínimo 10 caracteres");
+    if (!/[A-Z]/.test(strPassword)) errores.push("al menos una mayúscula");
+    if (!/[a-z]/.test(strPassword)) errores.push("al menos una minúscula");
+    if (!/[0-9]/.test(strPassword)) errores.push("al menos un número");
+    if (!/[^A-Za-z0-9]/.test(strPassword)) errores.push("al menos un carácter especial");
+
+    if (errores.length > 0) {
+      setStrError(`La contraseña no cumple: ${errores.join(", ")}`);
+      return;
+    }
+
     try {
       const response = await api.post<{ usuario: UsuarioApi }>("/usuarios", {
         nombre: objFormulario.get("nombre"),
