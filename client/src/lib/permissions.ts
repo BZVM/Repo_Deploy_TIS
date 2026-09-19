@@ -6,6 +6,7 @@ export type SeccionId =
   | "residentes"
   | "pagos"
   | "mantenimiento"
+  | "copropietarios"
   | "usuarios"
   | "roles";
 
@@ -41,6 +42,7 @@ const MATRIZ_PERMISOS: Record<RolNombre, Partial<Record<SeccionId, Accion[]>>> =
     residentes: ["ver", "crear", "editar", "eliminar"],
     pagos: ["ver", "crear", "editar", "eliminar"],
     mantenimiento: ["ver", "crear", "editar", "eliminar"],
+    copropietarios: ["ver"],
     usuarios: ["ver", "crear", "editar", "eliminar"],
     roles: ["ver", "editar"],
   },
@@ -50,6 +52,7 @@ const MATRIZ_PERMISOS: Record<RolNombre, Partial<Record<SeccionId, Accion[]>>> =
     residentes: ["ver", "crear", "editar"],
     pagos: ["ver", "crear", "editar"],
     mantenimiento: ["ver", "crear", "editar"],
+    copropietarios: ["ver"],
     usuarios: ["ver"],
     // "roles" no aparece: la sección queda oculta y bloqueada para Directorio.
   },
@@ -59,6 +62,7 @@ const MATRIZ_PERMISOS: Record<RolNombre, Partial<Record<SeccionId, Accion[]>>> =
     residentes: ["ver"],
     pagos: ["ver"],
     mantenimiento: ["ver"],
+    copropietarios: ["ver"],
     // "usuarios" y "roles" no aparecen: quedan ocultas y bloqueadas para Consulta.
   },
 };
@@ -99,6 +103,7 @@ export const SECCIONES_NAV: SeccionNav[] = [
   { id: "panel", label: "Panel principal", href: "/admin" },
   { id: "edificios", label: "Edificios", href: "/admin/edificios" },
   { id: "residentes", label: "Residentes", href: "/admin/residentes" },
+  { id: "copropietarios", label: "Copropietarios", href: "/admin/copropietarios" },
   { id: "pagos", label: "Pagos", href: "/admin/pagos" },
   { id: "mantenimiento", label: "Mantenimiento", href: "/admin/mantenimiento" },
   { id: "usuarios", label: "Usuarios", href: "/admin/usuarios" },
