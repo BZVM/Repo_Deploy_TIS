@@ -24,4 +24,14 @@ async function listar(req, res, next) {
   }
 }
 
-module.exports = { generar, listar }
+async function aplicarMora(req, res, next) {
+  try {
+    const { id } = req.params
+    const resultado = await service.aplicarMora(id)
+    res.json(resultado)
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { generar, listar, aplicarMora }

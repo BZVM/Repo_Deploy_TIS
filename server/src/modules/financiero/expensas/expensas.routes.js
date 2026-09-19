@@ -34,9 +34,28 @@ const CONSULTA = autorizar('ADMINISTRADOR', 'DIRECTORIO', 'CONSULTA')
  *     responses:
  *       201: { description: Expensa generada }
  *       404: { description: Inmueble no encontrado }
- *       409: { description: Inmueble inactivo }
+ *       409: { description: Inmueble inactivo o expensa duplicada }
  */
 router.get('/', autenticar, CONSULTA, controller.listar)
 router.post('/', autenticar, GESTION, controller.generar)
+
+/**
+ * @openapi
+ * /api/financiero/expensas/{id}/aplicar-mora:
+ *   post:
+ *     summary: Revisa una expensa vencida y le aplica el recargo por mora segun la configuracion vigente
+ *     tags: [Financiero]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Mora aplicada o expensa aun dentro del periodo de gracia }
+ *       404: { description: Expensa no encontrada }
+ *       409: { description: No hay configuracion de mora vigente }
+ */
+router.post('/:id/aplicar-mora', autenticar, GESTION, controller.aplicarMora)
 
 module.exports = router
