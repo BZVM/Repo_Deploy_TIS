@@ -16,15 +16,27 @@ async function generar({ inmuebleId, periodo, fechaVencimiento }) {
     })
   }
 
-  return prisma.expensa.create({
-    data: {
-      inmuebleId,
-      periodo,
-      montoTotal: inmueble.tipoInmueble.montoBase,
-      fechaVencimiento: new Date(fechaVencimiento)
-    },
-    include: { inmueble: { include: { tipoInmueble: true } } }
-  })
+  try {
+    return await prisma.expensa.create({
+      data: {
+        inmuebleId,
+        periodo,
+        montoTotal: inmueble.tipoInmueble.montoBase,
+        fechaVencimiento: new Date(fechaVencimiento)
+      },
+      include: { inmueble: { include: { tipoInmueble: true } } }
+    })
+  } catch (err) {
+    if (err.code === 'P2002') {
+      throw Object.assign(
+        new Error(
+          `Ya existe una expensa para el inmueble ${inmueble.codigo} en el periodo ${periodo}`
+        ),
+        { status: 409 }
+      )
+    }
+    throw err
+  }
 }
 
 async function listar() {
