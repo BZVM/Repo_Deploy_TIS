@@ -62,7 +62,7 @@ export default function RecuperarPasswordPage() {
                 <input
                   id="email"
                   type="email"
-                  placeholder="nombre@empresa.com"
+                  placeholder="Ingresa tu correo electrónico"
                   value={strEmail}
                   onChange={(event) => setStrEmail(event.target.value)}
                   required
