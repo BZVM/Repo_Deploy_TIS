@@ -8,199 +8,101 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// ---------------------------------------------------------------------------
+// Seguridad / RBAC (Requisito 9 del documento de requerimientos)
+// ---------------------------------------------------------------------------
+
+enum RolNombre {
+  ADMINISTRADOR
+  DIRECTORIO
+  CONSULTA
+}
+
 model Usuario {
-  id                     String                 @id @default(uuid())
-  nombre                 String
-  apellido               String
-  email                  String                 @unique
-  passwordHash           String
-  rol                    RolNombre
-  activo                 Boolean                @default(true)
-  ultimoLogin            DateTime?
-  copropietarioId        String?
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime               @updatedAt
-  auditorias             HistorialAuditoria[]
-  movimientosRegistrados MovimientoFinanciero[]
+  id              String    @id @default(uuid())
+  nombre          String
+  apellido        String
+  email           String    @unique
+  passwordHash    String
+  rol             RolNombre
+  activo          Boolean   @default(true)
+  ultimoLogin     DateTime?
+
+  copropietario   Copropietario? @relation(fields: [copropietarioId], references: [id])
+  copropietarioId String?
+
+  auditorias      HistorialAuditoria[]
+
   pagosRegistrados       Pago[]
+  movimientosRegistrados MovimientoFinanciero[]
   nominasRegistradas     PagoPersonal[]
-  copropietario          Copropietario?         @relation(fields: [copropietarioId], references: [id])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@map("usuarios")
 }
 
+// ---------------------------------------------------------------------------
+// Copropietarios / Inmuebles (Requisito 1 del documento de requerimientos)
+// Base necesaria para que Backend 2 arranque "API Copropietarios e Inmuebles"
+// la proxima semana sin bloquear el modelado.
+// ---------------------------------------------------------------------------
+
 model Copropietario {
-  id          String             @id @default(uuid())
+  id          String   @id @default(uuid())
   nombre      String
   apellido    String
-  ci          String             @unique
+  ci          String   @unique
   email       String?
   telefono    String?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  ocupaciones OcupanteInmueble[]
+
   usuarios    Usuario[]
+  ocupaciones OcupanteInmueble[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("copropietarios")
 }
 
+model TipoInmueble {
+  id          String     @id @default(uuid())
+  nombre      String     @unique
+  montoBase   Decimal    @db.Decimal(10, 2)
+
+  inmuebles   Inmueble[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("tipos_inmueble")
+}
+
 model Inmueble {
-  id             String             @id @default(uuid())
-  codigo         String             @unique
-  piso           String?
-  areaM2         Decimal?           @db.Decimal(8, 2)
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  activo         Boolean            @default(true)
+  id             String       @id @default(uuid())
+  codigo         String       @unique
+
+  tipoInmueble   TipoInmueble @relation(fields: [tipoInmuebleId], references: [id])
   tipoInmuebleId String
-  expensas       Expensa[]
-  tipoInmueble   TipoInmueble       @relation(fields: [tipoInmuebleId], references: [id])
+
+  piso           String?
+  areaM2         Decimal?     @db.Decimal(8, 2)
+  activo         Boolean      @default(true)
+
   ocupaciones    OcupanteInmueble[]
+  expensas       Expensa[]
 
-  @@index([tipoInmuebleId])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
   @@map("inmuebles")
+  @@index([tipoInmuebleId])
 }
 
-model OcupanteInmueble {
-  id              String        @id @default(uuid())
-  inmuebleId      String
-  copropietarioId String
-  esPropietario   Boolean       @default(true)
-  fechaInicio     DateTime      @default(now())
-  fechaFin        DateTime?
-  copropietario   Copropietario @relation(fields: [copropietarioId], references: [id])
-  inmueble        Inmueble      @relation(fields: [inmuebleId], references: [id])
-
-  @@index([inmuebleId])
-  @@index([copropietarioId])
-  @@map("ocupante_inmueble")
-}
-
-model HistorialAuditoria {
-  id        String   @id @default(uuid())
-  usuarioId String?
-  accion    String
-  entidad   String
-  entidadId String?
-  detalle   Json?
-  ip        String?
-  createdAt DateTime @default(now())
-  usuario   Usuario? @relation(fields: [usuarioId], references: [id])
-
-  @@index([entidad, entidadId])
-  @@index([usuarioId])
-  @@index([createdAt])
-  @@map("historial_auditoria")
-}
-
-model Expensa {
-  id               String        @id @default(uuid())
-  inmuebleId       String
-  periodo          String
-  montoTotal       Decimal       @db.Decimal(10, 2)
-  estado           EstadoExpensa @default(PENDIENTE)
-  fechaVencimiento DateTime
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  montoMora        Decimal       @default(0) @db.Decimal(10, 2)
-  inmueble         Inmueble      @relation(fields: [inmuebleId], references: [id])
-  pagos            Pago[]
-
-  @@unique([inmuebleId, periodo])
-  @@index([periodo])
-  @@index([estado])
-  @@map("expensas")
-}
-
-model Pago {
-  id              String     @id @default(uuid())
-  expensaId       String
-  monto           Decimal    @db.Decimal(10, 2)
-  metodoPago      MetodoPago
-  referencia      String?
-  fechaPago       DateTime   @default(now())
-  registradoPorId String?
-  expensa         Expensa    @relation(fields: [expensaId], references: [id])
-  registradoPor   Usuario?   @relation(fields: [registradoPorId], references: [id])
-
-  @@index([expensaId])
-  @@index([fechaPago])
-  @@map("pagos")
-}
-
-model MovimientoFinanciero {
-  id              String         @id @default(uuid())
-  tipo            TipoMovimiento
-  categoria       String
-  monto           Decimal        @db.Decimal(10, 2)
-  descripcion     String?
-  fecha           DateTime       @default(now())
-  registradoPorId String?
-  registradoPor   Usuario?       @relation(fields: [registradoPorId], references: [id])
-
-  @@index([tipo])
-  @@index([fecha])
-  @@map("movimientos_financieros")
-}
-
-model CuentaBancaria {
-  id           String           @id @default(uuid())
-  nombre       String
-  banco        String
-  numeroCuenta String           @unique
-  saldoActual  Decimal          @default(0) @db.Decimal(12, 2)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  movimientos  MovimientoCaja[]
-
-  @@map("cuentas_bancarias")
-}
-
-model MovimientoCaja {
-  id         String         @id @default(uuid())
-  cuentaId   String
-  tipo       TipoMovimiento
-  monto      Decimal        @db.Decimal(12, 2)
-  concepto   String
-  conciliado Boolean        @default(false)
-  fecha      DateTime       @default(now())
-  cuenta     CuentaBancaria @relation(fields: [cuentaId], references: [id])
-
-  @@index([cuentaId])
-  @@index([fecha])
-  @@map("movimientos_caja")
-}
-
-model Personal {
-  id           String         @id @default(uuid())
-  nombre       String
-  apellido     String
-  cargo        String
-  salarioBase  Decimal        @db.Decimal(10, 2)
-  fechaIngreso DateTime       @default(now())
-  activo       Boolean        @default(true)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  pagos        PagoPersonal[]
-
-  @@map("personal")
-}
-
-model PagoPersonal {
-  id              String   @id @default(uuid())
-  personalId      String
-  periodo         String
-  bonificaciones  Decimal  @default(0) @db.Decimal(10, 2)
-  descuentos      Decimal  @default(0) @db.Decimal(10, 2)
-  montoNeto       Decimal  @db.Decimal(10, 2)
-  fechaPago       DateTime @default(now())
-  registradoPorId String?
-  personal        Personal @relation(fields: [personalId], references: [id])
-  registradoPor   Usuario? @relation(fields: [registradoPorId], references: [id])
-
-  @@unique([personalId, periodo])
-  @@index([personalId])
-  @@map("pagos_personal")
+enum TipoValorMora {
+  PORCENTAJE
+  MONTO_FIJO
 }
 
 model ConfiguracionMora {
@@ -214,22 +116,55 @@ model ConfiguracionMora {
   @@map("configuracion_mora")
 }
 
-model TipoInmueble {
-  id        String     @id @default(uuid())
-  nombre    String     @unique
-  montoBase Decimal    @db.Decimal(10, 2)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  inmuebles Inmueble[]
+// Historial de ocupantes por departamento (propietario o inquilino, con fechas)
+model OcupanteInmueble {
+  id              String   @id @default(uuid())
 
-  @@map("tipos_inmueble")
+  inmueble        Inmueble @relation(fields: [inmuebleId], references: [id])
+  inmuebleId      String
+
+  copropietario   Copropietario @relation(fields: [copropietarioId], references: [id])
+  copropietarioId String
+
+  esPropietario   Boolean  @default(true) // false = inquilino
+  fechaInicio     DateTime @default(now())
+  fechaFin        DateTime?
+
+  @@map("ocupante_inmueble")
+  @@index([inmuebleId])
+  @@index([copropietarioId])
 }
 
-enum RolNombre {
-  ADMINISTRADOR
-  DIRECTORIO
-  CONSULTA
+// ---------------------------------------------------------------------------
+// Auditoria (Requisito 10 del documento de requerimientos)
+// Registra quien, que accion, sobre que entidad y cuando.
+// ---------------------------------------------------------------------------
+
+model HistorialAuditoria {
+  id        String   @id @default(uuid())
+
+  usuario   Usuario? @relation(fields: [usuarioId], references: [id])
+  usuarioId String?
+
+  accion    String   // LOGIN, CREATE, UPDATE, DELETE, etc.
+  entidad   String   // nombre de la entidad afectada (Usuario, Copropietario, Expensa...)
+  entidadId String?
+  detalle   Json?    // payload/diff relevante de la operacion
+  ip        String?
+
+  createdAt DateTime @default(now())
+
+  @@map("historial_auditoria")
+  @@index([entidad, entidadId])
+  @@index([usuarioId])
+  @@index([createdAt])
 }
+
+// ---------------------------------------------------------------------------
+// Financiero (Backend 1 - Sprint 0: arquitectura BD)
+// Expensas/pagos, ingresos-egresos, caja-bancos y personal.
+// Los reportes se calculan a partir de estas tablas, no son una entidad propia.
+// ---------------------------------------------------------------------------
 
 enum EstadoExpensa {
   PENDIENTE
@@ -250,7 +185,137 @@ enum TipoMovimiento {
   EGRESO
 }
 
-enum TipoValorMora {
-  PORCENTAJE
-  MONTO_FIJO
+// Cobro mensual de expensas por inmueble
+model Expensa {
+  id               String        @id @default(uuid())
+
+  inmueble         Inmueble      @relation(fields: [inmuebleId], references: [id])
+  inmuebleId       String
+
+  periodo          String        // formato "YYYY-MM"
+  montoTotal       Decimal       @db.Decimal(10, 2)
+  montoMora        Decimal       @default(0) @db.Decimal(10, 2)
+  estado           EstadoExpensa @default(PENDIENTE)
+  fechaVencimiento DateTime
+
+  pagos            Pago[]
+
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@map("expensas")
+  @@unique([inmuebleId, periodo])
+  @@index([periodo])
+  @@index([estado])
+}
+
+// Pagos aplicados a una expensa (permite pagos parciales)
+model Pago {
+  id              String     @id @default(uuid())
+
+  expensa         Expensa    @relation(fields: [expensaId], references: [id])
+  expensaId       String
+
+  monto           Decimal    @db.Decimal(10, 2)
+  metodoPago      MetodoPago
+  referencia      String?
+  fechaPago       DateTime   @default(now())
+
+  registradoPor   Usuario?   @relation(fields: [registradoPorId], references: [id])
+  registradoPorId String?
+
+  @@map("pagos")
+  @@index([expensaId])
+  @@index([fechaPago])
+}
+
+// Ingresos extraordinarios y egresos generales (no ligados a una expensa puntual)
+model MovimientoFinanciero {
+  id              String         @id @default(uuid())
+
+  tipo            TipoMovimiento
+  categoria       String
+  monto           Decimal        @db.Decimal(10, 2)
+  descripcion     String?
+  fecha           DateTime       @default(now())
+
+  registradoPor   Usuario?       @relation(fields: [registradoPorId], references: [id])
+  registradoPorId String?
+
+  @@map("movimientos_financieros")
+  @@index([tipo])
+  @@index([fecha])
+}
+
+// Cuentas de banco/caja del edificio
+model CuentaBancaria {
+  id           String   @id @default(uuid())
+  nombre       String
+  banco        String
+  numeroCuenta String   @unique
+  saldoActual  Decimal  @default(0) @db.Decimal(12, 2)
+
+  movimientos  MovimientoCaja[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("cuentas_bancarias")
+}
+
+// Movimientos de caja/banco (para conciliacion)
+model MovimientoCaja {
+  id         String         @id @default(uuid())
+
+  cuenta     CuentaBancaria @relation(fields: [cuentaId], references: [id])
+  cuentaId   String
+
+  tipo       TipoMovimiento
+  monto      Decimal        @db.Decimal(12, 2)
+  concepto   String
+  conciliado Boolean        @default(false)
+  fecha      DateTime       @default(now())
+
+  @@map("movimientos_caja")
+  @@index([cuentaId])
+  @@index([fecha])
+}
+
+// Personal del edificio (conserjes, seguridad, mantenimiento, etc.)
+model Personal {
+  id           String   @id @default(uuid())
+  nombre       String
+  apellido     String
+  cargo        String
+  salarioBase  Decimal  @db.Decimal(10, 2)
+  fechaIngreso DateTime @default(now())
+  activo       Boolean  @default(true)
+
+  pagos        PagoPersonal[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("personal")
+}
+
+// Historial de pagos de nomina (salarios, bonificaciones, descuentos)
+model PagoPersonal {
+  id             String   @id @default(uuid())
+
+  personal       Personal @relation(fields: [personalId], references: [id])
+  personalId     String
+
+  periodo        String   // formato "YYYY-MM"
+  bonificaciones Decimal  @default(0) @db.Decimal(10, 2)
+  descuentos     Decimal  @default(0) @db.Decimal(10, 2)
+  montoNeto      Decimal  @db.Decimal(10, 2)
+  fechaPago      DateTime @default(now())
+
+  registradoPor   Usuario? @relation(fields: [registradoPorId], references: [id])
+  registradoPorId String?
+
+  @@map("pagos_personal")
+  @@unique([personalId, periodo])
+  @@index([personalId])
 }

@@ -13,6 +13,7 @@ const copropietariosRoutes = require('./modules/operativo-seguridad/copropietari
 const inmueblesRoutes = require('./modules/operativo-seguridad/inmuebles/inmuebles.routes')
 const tiposInmuebleRoutes = require('./modules/operativo-seguridad/tipos-inmueble/tipos-inmueble.routes')
 const financieroTestAuthRoutes = require('./modules/financiero/test-auth/test-auth.routes')
+const expensasRoutes = require('./modules/financiero/expensas/expensas.routes')
 
 const app = express()
 
@@ -31,6 +32,7 @@ app.use('/api/copropietarios', copropietariosRoutes)
 app.use('/api/inmuebles', inmueblesRoutes)
 app.use('/api/tipos-inmueble', tiposInmuebleRoutes)
 app.use('/api/financiero', financieroTestAuthRoutes)
+app.use('/api/financiero/expensas', expensasRoutes)
 
 app.use((req, res) => res.status(404).json({ error: 'Ruta no encontrada' }))
 app.use(manejarErrores)
