@@ -1,8 +1,11 @@
 export type RolNombre = "ADMINISTRADOR" | "DIRECTORIO" | "CONSULTA";
 
+export const ROLES_DISPONIBLES: RolNombre[] = ["ADMINISTRADOR", "DIRECTORIO", "CONSULTA"];
+
 export type SeccionId =
   | "panel"
   | "edificios"
+  | "inmuebles"
   | "residentes"
   | "pagos"
   | "mantenimiento"
@@ -16,12 +19,6 @@ export const MENSAJE_PERMISO_INSUFICIENTE =
 
 export const MENSAJE_ACCESO_DENEGADO_SECCION = "No tienes permisos para acceder a esta sección.";
 
-/**
- * "ROL_1" es un valor heredado que solo aparece en datos de prueba del
- * frontend (ver formatRol en admin/page.tsx); el enum real del backend no
- * lo define. Un rol desconocido se trata como el más restrictivo (CONSULTA)
- * en vez de otorgar acceso por defecto.
- */
 export function normalizarRol(strRol: string): RolNombre {
   if (strRol === "ROL_1") {
     return "ADMINISTRADOR";
@@ -38,6 +35,7 @@ const MATRIZ_PERMISOS: Record<RolNombre, Partial<Record<SeccionId, Accion[]>>> =
   ADMINISTRADOR: {
     panel: ["ver"],
     edificios: ["ver", "crear", "editar", "eliminar"],
+    inmuebles: ["ver", "crear", "editar", "eliminar"],
     residentes: ["ver", "crear", "editar", "eliminar"],
     pagos: ["ver", "crear", "editar", "eliminar"],
     mantenimiento: ["ver", "crear", "editar", "eliminar"],
@@ -47,19 +45,19 @@ const MATRIZ_PERMISOS: Record<RolNombre, Partial<Record<SeccionId, Accion[]>>> =
   DIRECTORIO: {
     panel: ["ver"],
     edificios: ["ver", "crear", "editar"],
+    inmuebles: ["ver", "crear", "editar"],
     residentes: ["ver", "crear", "editar"],
     pagos: ["ver", "crear", "editar"],
     mantenimiento: ["ver", "crear", "editar"],
     usuarios: ["ver"],
-    // "roles" no aparece: la sección queda oculta y bloqueada para Directorio.
   },
   CONSULTA: {
     panel: ["ver"],
     edificios: ["ver"],
+    inmuebles: ["ver"],
     residentes: ["ver"],
     pagos: ["ver"],
     mantenimiento: ["ver"],
-    // "usuarios" y "roles" no aparecen: quedan ocultas y bloqueadas para Consulta.
   },
 };
 
@@ -71,12 +69,6 @@ export function puedeEjecutar(rol: RolNombre, seccion: SeccionId, accion: Accion
   return Boolean(MATRIZ_PERMISOS[rol][seccion]?.includes(accion));
 }
 
-/**
- * Revalida el permiso justo antes de ejecutar una acción de escritura
- * (crear/editar/eliminar), sin importar si el botón correspondiente estaba
- * visible. Es una comprobación local y síncrona (no hace ninguna llamada de
- * red), por lo que responde en microsegundos.
- */
 export function validarAccion(
   rol: RolNombre,
   seccion: SeccionId,
@@ -98,6 +90,7 @@ export interface SeccionNav {
 export const SECCIONES_NAV: SeccionNav[] = [
   { id: "panel", label: "Panel principal", href: "/admin" },
   { id: "edificios", label: "Edificios", href: "/admin/edificios" },
+  { id: "inmuebles", label: "Inmuebles", href: "/admin/inmuebles" },
   { id: "residentes", label: "Residentes", href: "/admin/residentes" },
   { id: "pagos", label: "Pagos", href: "/admin/pagos" },
   { id: "mantenimiento", label: "Mantenimiento", href: "/admin/mantenimiento" },
