@@ -101,7 +101,7 @@ router.put("/:id", autenticar, GESTION, controller.actualizar);
  *       200: { description: OK }
  *       404: { description: Inmueble no encontrado }
  *   post:
- *     summary: Asigna un copropietario (propietario o inquilino) a un inmueble
+ *     summary: Asigna un copropietario (propietario o inquilino) a un inmueble. Si ya habia un ocupante activo del mismo tipo (propietario/inquilino), se cierra automaticamente su fechaFin.
  *     tags: [Inmuebles]
  *     security: [{ bearerAuth: [] }]
  *     parameters:

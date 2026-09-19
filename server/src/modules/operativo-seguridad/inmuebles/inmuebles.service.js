@@ -126,26 +126,54 @@ async function asignarOcupante(inmuebleId, { copropietarioId, esPropietario, fec
     throw Object.assign(new Error("Copropietario no encontrado"), { status: 404 });
   }
 
-  const ocupante = await prisma.ocupanteInmueble.create({
-    data: {
-      inmuebleId,
-      copropietarioId,
-      esPropietario: esPropietario ?? true,
-      fechaInicio: fechaInicio ? new Date(fechaInicio) : undefined,
-    },
-    select: CAMPOS_OCUPANTE,
+  const tipoEsPropietario = esPropietario ?? true;
+  const fechaInicioNueva = fechaInicio ? new Date(fechaInicio) : new Date();
+  const fechaCambio = new Date();
+
+  const { nuevo, cerroOcupanteAnteriorId } = await prisma.$transaction(async (tx) => {
+    // Solo puede haber un ocupante activo del mismo tipo (propietario o inquilino)
+    // a la vez por inmueble; un propietario y un inquilino si pueden estar activos
+    // al mismo tiempo (el dueño que alquila su unidad).
+    const activoAnterior = await tx.ocupanteInmueble.findFirst({
+      where: { inmuebleId, esPropietario: tipoEsPropietario, fechaFin: null },
+    });
+
+    if (activoAnterior) {
+      if (fechaCambio < activoAnterior.fechaInicio) {
+        throw Object.assign(
+          new Error("La fecha de finalizacion no puede ser anterior a la fecha de inicio del ocupante anterior"),
+          { status: 400 }
+        );
+      }
+      await tx.ocupanteInmueble.update({
+        where: { id: activoAnterior.id },
+        data: { fechaFin: fechaCambio },
+      });
+    }
+
+    const creado = await tx.ocupanteInmueble.create({
+      data: {
+        inmuebleId,
+        copropietarioId,
+        esPropietario: tipoEsPropietario,
+        fechaInicio: fechaInicioNueva,
+      },
+      select: CAMPOS_OCUPANTE,
+    });
+
+    return { nuevo: creado, cerroOcupanteAnteriorId: activoAnterior?.id ?? null };
   });
 
   await registrarAuditoria({
     usuarioId: actorId,
     accion: "CREATE",
     entidad: "OcupanteInmueble",
-    entidadId: ocupante.id,
-    detalle: { inmuebleId, copropietarioId, esPropietario: ocupante.esPropietario },
+    entidadId: nuevo.id,
+    detalle: { inmuebleId, copropietarioId, esPropietario: tipoEsPropietario, cerroOcupanteAnteriorId },
     ip,
   });
 
-  return ocupante;
+  return nuevo;
 }
 
 async function darDeBajaOcupante(inmuebleId, ocupanteId, { actorId, ip }) {
@@ -157,9 +185,17 @@ async function darDeBajaOcupante(inmuebleId, ocupanteId, { actorId, ip }) {
     throw Object.assign(new Error("El ocupante ya fue dado de baja"), { status: 409 });
   }
 
+  const fechaFin = new Date();
+  if (fechaFin < ocupante.fechaInicio) {
+    throw Object.assign(
+      new Error("La fecha de finalizacion no puede ser anterior a la fecha de inicio"),
+      { status: 400 }
+    );
+  }
+
   const actualizado = await prisma.ocupanteInmueble.update({
     where: { id: ocupanteId },
-    data: { fechaFin: new Date() },
+    data: { fechaFin },
     select: CAMPOS_OCUPANTE,
   });
 
